@@ -85,8 +85,15 @@ class Entry {
                     break;
 
                 case EntryType::Folder:
+                    UI::BeginDisabled(this is workingFolder);
                     if (UI::MenuItem(Icons::ExternalLinkSquare + " Open as Workspace")) {
                         Open();
+                        contextMenuOpen = false;
+                    }
+                    UI::EndDisabled();
+
+                    if (UI::MenuItem(Icons::ExternalLink + " Open in Windows Explorer")) {
+                        OpenExplorerPath(path);
                         contextMenuOpen = false;
                     }
 
