@@ -97,8 +97,10 @@ class Entry {
                         contextMenuOpen = false;
                     }
 
-                    if (UI::MenuItem(Icons::ExternalLink + " Open in Preferred Text Editor ("
-                    + tostring(Meta::GetPreferredTextEditor()) + ")")) {
+                    if (
+                        UI::MenuItem(Icons::ExternalLink + " Open in Preferred Text Editor ("
+                        + tostring(Meta::GetPreferredTextEditor()) + ")")
+                    ) {
                         Meta::OpenTextEditor(path);
                         contextMenuOpen = false;
                     }
