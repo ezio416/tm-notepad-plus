@@ -17,6 +17,10 @@ class File : Entry {
         return Path::GetExtension(path);
     }
 
+    string get_icon() override {
+        return GetIcon(extension);
+    }
+
     File(const string&in path) {
         super(path);
         type = EntryType::File;
@@ -51,6 +55,10 @@ class File : Entry {
             openFiles.InsertLast(this);
             load = true;
         }
+    }
+
+    void Open() override {
+        Edit();
     }
 
     bool Read() {
@@ -188,8 +196,4 @@ class File : Entry {
             return false;
         }
     }
-}
-
-void InputCallback(UI::InputTextCallbackData@ data) {
-    ;
 }

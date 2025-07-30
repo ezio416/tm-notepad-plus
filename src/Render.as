@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-07-28
+// m 2025-07-30
 
 void RenderFileTabs() {
     UI::BeginTabBar("##tabs-open", UI::TabBarFlags::Reorderable);
@@ -22,16 +22,46 @@ void RenderWindow() {
     ) {
         UI::SetNextItemWidth(UI::GetContentRegionAvail().x);
         UI::PushStyleColor(UI::Col::FrameBg, frameBg);
-        workingFolderPath = UI::InputText("##working folder", workingFolderPath);
+        S_WorkspaceFolder = UI::InputText("##working folder", S_WorkspaceFolder);
         UI::PopStyleColor();
 
+        UI::BeginDisabled(false
+            or (true
+                and workingFolder !is null
+                and workingFolder.path == S_WorkspaceFolder
+            )
+            or S_WorkspaceFolder.Length == 0
+        );
         if (UI::Button("Load")) {
-            @workingFolder = Folder(workingFolderPath);
+            SetWorkingFolder(Folder(S_WorkspaceFolder));
+            workingFolder.Enumerate(true);
         }
+        UI::EndDisabled();
 
         if (workingFolder !is null) {
-            if (UI::Button("Enumerate")) {
-                workingFolder.Enumerate(true);
+            if (workingFolder.pluginFolder) {
+                Meta::Plugin@ plugin = Meta::GetPluginFromID(workingFolder.pluginId);
+
+                UI::AlignTextToFramePadding();
+                UI::Text("Plugin Controls:");
+
+                UI::BeginDisabled(plugin !is null);
+                UI::SameLine();
+                if (UI::Button("Load##plugin")) {
+                    workingFolder.LoadPlugin();
+                }
+                UI::EndDisabled();
+
+                UI::BeginDisabled(plugin is null);
+                UI::SameLine();
+                if (UI::Button("Reload##plugin")) {
+                    workingFolder.ReloadPlugin();
+                }
+                UI::SameLine();
+                if (UI::Button("Unload##plugin")) {
+                    workingFolder.UnloadPlugin();
+                }
+                UI::EndDisabled();
             }
 
             workingFolder.RenderTreeSimple();
