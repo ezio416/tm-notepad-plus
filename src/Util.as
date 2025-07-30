@@ -12,6 +12,19 @@ string GetIcon(const string&in extension) {
     return Icons::File;
 }
 
+void InitDriveLetters() {
+    string drive;
+    string letter = " ";
+
+    for (uint i = 65; i < 91; i++) {
+        letter[0] = i;
+        drive = letter + ":";
+        if (IO::FolderExists(drive)) {
+            validDriveLetters.InsertLast(drive);
+        }
+    }
+}
+
 void InitIcons() {  // vscode extension doesn't do well with large statically initialized dicts
     icons.Set(".as",            Icons::Heartbeat);
     icons.Set(".bmp",           Icons::FileImageO);

@@ -89,6 +89,13 @@ class Entry {
                         Open();
                         contextMenuOpen = false;
                     }
+
+                    if (UI::MenuItem(Icons::ExternalLink + " Open in Preferred Text Editor ("
+                    + tostring(Meta::GetPreferredTextEditor()) + ")")) {
+                        Meta::OpenTextEditor(path);
+                        contextMenuOpen = false;
+                    }
+
                     break;
             }
             UI::PopFont();

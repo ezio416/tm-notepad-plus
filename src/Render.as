@@ -12,6 +12,24 @@ void RenderFileTabs() {
 }
 
 void RenderWindow() {
+    if (UI::BeginMenuBar()) {
+        if (UI::BeginMenu("File")) {
+            if (UI::BeginMenu(Icons::Server + " Change drive")) {
+                for (uint i = 0; i < validDriveLetters.Length; i++) {
+                    if (UI::MenuItem(validDriveLetters[i])) {
+                        SetWorkingFolder(validDriveLetters[i]);
+                    }
+                }
+
+                UI::EndMenu();
+            }
+
+            UI::EndMenu();
+        }
+
+        UI::EndMenuBar();
+    }
+
     const vec4 frameBg = UI::GetStyleColor(UI::Col::FrameBg);
 
     UI::PushStyleColor(UI::Col::FrameBg, vec4(vec3(0.1f), 1.0f));

@@ -6,14 +6,17 @@ const string  pluginIcon  = Icons::Pencil;
 Meta::Plugin@ pluginMeta  = Meta::ExecutingPlugin();
 const string  pluginTitle = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
 
-Entry@  activeContextMenu;
-vec2    lastWindowPos;
-vec2    lastWindowSize;
-File@[] openFiles;
-Folder@ workingFolder;
+Entry@   activeContextMenu;
+vec2     lastWindowPos;
+vec2     lastWindowSize;
+File@[]  openFiles;
+string[] validDriveLetters;
+Folder@  workingFolder;
 
 void Main() {
     InitIcons();
+
+    InitDriveLetters();
 
     if (S_WorkspaceFolder.Length > 0) {
         SetWorkingFolder(S_WorkspaceFolder);
