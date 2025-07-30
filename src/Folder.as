@@ -4,6 +4,7 @@
 class Folder : Entry {
     Entry@[] entries;
     bool     enumerated   = false;
+    bool     treeOpen     = false;
     bool     pluginFolder = false;
     string   pluginId;
 
@@ -12,7 +13,7 @@ class Folder : Entry {
     }
 
     string get_icon() override {
-        return Icons::Folder;
+        return treeOpen ? Icons::FolderOpen : Icons::Folder;
     }
 
     Folder(const string&in path) {
@@ -201,11 +202,11 @@ class Folder : Entry {
             flags |= UI::TreeNodeFlags::DefaultOpen;
         }
 
-        const bool open = UI::TreeNode("\\$FF8" + icon + "\\$G " + name, flags);
+        treeOpen = UI::TreeNode("\\$FF8" + icon + "\\$G " + name + "###" + path, flags);
         if (UI::IsItemClicked(UI::MouseButton::Right)) {
             RightClick();
         }
-        if (open) {
+        if (treeOpen) {
             if (!enumerated) {
                 Enumerate();
             }
