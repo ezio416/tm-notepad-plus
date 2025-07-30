@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-07-28
+// m 2025-07-30
 
 class File : Entry {
     MemoryBuffer@ buffer;
@@ -37,9 +37,25 @@ class File : Entry {
         }
     }
 
+    bool Create() override {
+        if (exists) {
+            return true;
+        }
+
+        try {
+            IO::File file(path, IO::FileMode::Write);
+            file.Close();
+            trace("created file: " + path);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     bool Delete() {
         try {
             IO::Delete(path);
+            warn("deleted file: " + path);
             return true;
         } catch {
             error(getExceptionInfo());
@@ -101,12 +117,15 @@ class File : Entry {
         }
         if (dirty) {
             flags |= UI::TabItemFlags::UnsavedDocument;
-            if (!UI::BeginTabItem(name + "##" + path, flags)) {
+            const bool open = UI::BeginTabItem(name + "##" + path, flags);
+            UI::SetItemTooltip(path);
+            if (!open) {
                 return;
             }
         } else {
             bool open = true;
             const bool shown = UI::BeginTabItem(name + "##" + path, open, flags);
+            UI::SetItemTooltip(path);
             if (!open) {
                 if (shown) {
                     UI::EndTabItem();

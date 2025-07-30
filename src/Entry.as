@@ -1,5 +1,5 @@
 // c 2025-07-28
-// m 2025-07-28
+// m 2025-07-30
 
 enum EntryType {
     File,
@@ -8,21 +8,23 @@ enum EntryType {
 }
 
 class Entry {
-    int2           contextMenuLocation;
-    bool           contextMenuOpen = false;
-    Folder@        parent;
-    string         path;
-    EntryType      type            = EntryType::Unknown;
+    int2      contextMenuLocation;
+    bool      contextMenuOpen = false;
+    string    newName;
+    Folder@   parent;
+    string    path;
+    bool      renameOpen      = false;
+    EntryType type            = EntryType::Unknown;
 
-    bool get_exists() {
-        return false;  // override
+    bool get_exists() {  // override
+        return false;
     }
 
-    string get_icon() {
-        return "";  // override
+    string get_icon() {  // override
+        return "";
     }
 
-    string get_name() {
+    string get_name() final {
         return Path::GetFileName(path);
     }
 
@@ -30,7 +32,11 @@ class Entry {
         this.path = path.Replace("\\", "/");
     }
 
-    bool Move(const string&in path) {
+    bool Create() {  // override
+        return false;
+    }
+
+    bool Move(const string&in path) final {
         try {
             IO::Move(this.path, path);
             return true;
@@ -41,11 +47,10 @@ class Entry {
         }
     }
 
-    void Open() {
-        ;  // override
+    void Open() {  // override
     }
 
-    bool Rename(const string&in name) {
+    bool Rename(const string&in name) final {
         try {
             IO::Move(path, Path::GetDirectoryName(path) + name);
             return true;
@@ -56,7 +61,7 @@ class Entry {
         }
     }
 
-    void RenderContextMenu() {
+    void RenderContextMenu() final {
         if (!contextMenuOpen) {
             return;
         }
@@ -73,14 +78,14 @@ class Entry {
             UI::PushFont(UI::Font::DefaultBold);
             switch (type) {
                 case EntryType::File:
-                    if (UI::Selectable("Open in Editor", false)) {
+                    if (UI::MenuItem(Icons::ExternalLinkSquare + " Open in Editor")) {
                         Open();
                         contextMenuOpen = false;
                     }
                     break;
 
                 case EntryType::Folder:
-                    if (UI::Selectable("Open as Workspace", false)) {
+                    if (UI::MenuItem(Icons::ExternalLinkSquare + " Open as Workspace")) {
                         Open();
                         contextMenuOpen = false;
                     }
@@ -88,35 +93,103 @@ class Entry {
             }
             UI::PopFont();
 
-            UI::Separator();
-
             if (type == EntryType::Folder) {
-                if (UI::Selectable("Enumerate", false)) {
-                    cast<Folder>(this).Enumerate();
-                    contextMenuOpen = false;
-                }
-
-                if (UI::Selectable("Enumerate (recursive)", false)) {
-                    cast<Folder>(this).Enumerate(true);
-                    contextMenuOpen = false;
-                }
-
                 UI::Separator();
-            }
 
-            if (UI::Selectable("Delete", false)) {
-                print("click delete");
-                contextMenuOpen = false;
-            }
+                if (UI::BeginMenu(Icons::Plus + " New")) {
+                    if (UI::MenuItem(Icons::File + " File")) {
+                        trace("creating new file in " + path);
+                        auto folder = cast<Folder>(this);
+                        if (folder.CreateFile()) {
+                            folder.Enumerate();
+                        }
+                        contextMenuOpen = false;
+                    }
 
-            if (UI::Selectable("Rename", false)) {
-                print("click rename");
-                contextMenuOpen = false;
+                    if (UI::MenuItem(Icons::Folder + " Folder")) {
+                        trace("creating new folder in " + path);
+                        auto folder = cast<Folder>(this);
+                        if (folder.CreateFolder()) {
+                            folder.Enumerate();
+                        }
+                        contextMenuOpen = false;
+                    }
+
+                    UI::EndMenu();
+                }
             }
 
             UI::Separator();
 
-            if (UI::Selectable("Properties", false)) {
+            if (UI::BeginMenu(Icons::Trash + " Delete")) {
+                UI::AlignTextToFramePadding();
+                UI::Text("Are you sure? This is permanent!");
+
+                UI::SameLine();
+                if (UI::ButtonColored(Icons::ExclamationTriangle + " YES " + Icons::ExclamationTriangle, 0.15f)) {
+                    switch (type) {
+                        case EntryType::File:
+                            if (true
+                                and cast<File>(this).Delete()
+                                and parent !is null
+                            ) {
+                                parent.Enumerate();
+                            }
+                            break;
+
+                        case EntryType::Folder:
+                            if (true
+                                and cast<Folder>(this).Delete(true)
+                                and parent !is null
+                            ) {
+                                parent.Enumerate();
+                            }
+                            break;
+                    }
+
+                    contextMenuOpen = false;
+                }
+
+                UI::EndMenu();
+            }
+
+            if (UI::BeginMenu(Icons::Pencil + " Rename")) {
+                if (!renameOpen) {
+                    newName = name;
+                    renameOpen = true;
+                }
+
+                bool enter = false;
+                newName = UI::InputText("##New name", newName, enter, UI::InputTextFlags::EnterReturnsTrue);
+
+                UI::SameLine();
+                UI::BeginDisabled(false
+                    or newName.Length == 0
+                    or newName == name
+                );
+                if (true
+                    and (false
+                        or enter
+                        or UI::Button("Rename##button")
+                    )
+                    and Rename(newName)
+                ) {
+                    newName = "";
+                    contextMenuOpen = false;
+                    if (parent !is null) {
+                        parent.Enumerate();
+                    }
+                }
+                UI::EndDisabled();
+
+                UI::EndMenu();
+            } else {
+                renameOpen = false;
+            }
+
+            UI::Separator();
+
+            if (UI::MenuItem(Icons::Info + " Properties")) {
                 print("click properties");
                 contextMenuOpen = false;
             }
@@ -124,8 +197,16 @@ class Entry {
         UI::End();
     }
 
-    void RightClick() {
-        print("right clicked " + name);
+    void RightClick() final {
+        startnew(CoroutineFunc(RightClickAsync));
+    }
+
+    void RightClickAsync() final {
+        if (activeContextMenu !is null) {
+            activeContextMenu.contextMenuOpen = false;
+            @activeContextMenu = null;
+            yield();
+        }
 
         const vec2 mousePos = UI::GetMousePos();
         contextMenuLocation = int2(int(mousePos.x), int(mousePos.y));

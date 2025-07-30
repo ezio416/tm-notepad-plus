@@ -39,15 +39,15 @@ void InputCallback(UI::InputTextCallbackData@ data) {
 }
 
 void SetWorkingFolder(const string&in path) {
-    if (IO::FolderExists(path)) {
-        SetWorkingFolder(Folder(path));
-    }
+    SetWorkingFolder(Folder(path));
 }
 
 void SetWorkingFolder(Folder@ folder) {
-    if (folder !is null) {
+    if (true
+        and folder !is null
+        and IO::FolderExists(folder.path)
+    ) {
         @workingFolder = folder;
-        // workingFolder.Enumerate();
         S_WorkspaceFolder = workingFolder.path;
         trace("set working folder to " + folder.path);
     }

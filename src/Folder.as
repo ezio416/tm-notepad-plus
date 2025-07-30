@@ -26,20 +26,61 @@ class Folder : Entry {
         pluginId = Path::GetFileName(this.path);
     }
 
-    bool Create() {
+    bool Create() override {
+        if (exists) {
+            return true;
+        }
+
         try {
             IO::CreateFolder(path);
+            trace("created folder: " + path);
             return true;
         } catch {
-            error(getExceptionInfo());
             PrintActiveContextStack(true);
             return false;
         }
+    }
+
+    bool CreateFile(const string&in name = "") {
+        if (name.Length == 0) {
+            string newFileName = "New Text Document";
+            if (IO::FileExists(path + "/" + newFileName + ".txt")) {
+                uint i = 2;
+                newFileName += " (" + i + ")";
+                while (IO::FileExists(path + "/" + newFileName + ".txt")) {
+                    newFileName = newFileName.Replace("(" + i + ")", "(" + (i + 1) + ")");
+                    i++;
+                }
+            }
+
+            return File(path + "/" + newFileName + ".txt").Create();
+        }
+
+        return File(path + "/" + name).Create();
+    }
+
+    bool CreateFolder(const string&in name = "") {
+        if (name.Length == 0) {
+            string newFolderName = "New folder";
+            if (IO::FolderExists(path + "/" + newFolderName)) {
+                uint i = 2;
+                newFolderName += " (" + i + ")";
+                while (IO::FolderExists(path + "/" + newFolderName)) {
+                    newFolderName = newFolderName.Replace("(" + i + ")", "(" + (i + 1) + ")");
+                    i++;
+                }
+            }
+
+            return Folder(path + "/" + newFolderName).Create();
+        }
+
+        return Folder(path + "/" + name).Create();
     }
 
     bool Delete(const bool recursive = false) {
         try {
             IO::DeleteFolder(path, recursive);
+            warn("deleted folder and its contents: " + path);
             return true;
         } catch {
             error(getExceptionInfo());
@@ -48,7 +89,7 @@ class Folder : Entry {
         }
     }
 
-    void Enumerate(const bool recursive = false, const bool ignoreGitFolder = true) {
+    void Enumerate() {
         entries = {};
 
         if (exists) {
@@ -63,20 +104,8 @@ class Folder : Entry {
                 } else {
                     auto folder = Folder(index[i]);
                     // trace("found folder: " + folder.path);
-
                     @folder.parent = this;
                     entries.InsertLast(folder);
-
-                    if (true
-                        and ignoreGitFolder
-                        and folder.name == ".git"
-                    ) {
-                        continue;
-                    }
-
-                    // if (recursive) {
-                    //     folder.Enumerate(true);
-                    // }
                 }
             }
         }
@@ -192,7 +221,12 @@ class Folder : Entry {
                 if (parent is null) {
                     @parent = Folder(Path::GetDirectoryName(path));
                 }
-                SetWorkingFolder(parent);
+                if (parent.path.Length > 0) {
+                    trace("going up to " + parent.path);
+                    SetWorkingFolder(parent);
+                } else {
+                    warn("you're already at the top!");
+                }
             }
             UI::SetItemTooltip("Go up a folder");
             UI::Indent(-indent);
