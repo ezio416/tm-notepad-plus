@@ -45,8 +45,7 @@ void RenderWindow() {
         UI::PopStyleColor();
 
         if (enter) {
-            SetWorkingFolder(Folder(S_WorkspaceFolder));
-            workingFolder.Enumerate();
+            SetWorkingFolder(S_WorkspaceFolder);
         }
 
         if (workingFolder !is null) {

@@ -62,6 +62,7 @@ void SetWorkingFolder(Folder@ folder) {
     ) {
         @workingFolder = folder;
         S_WorkspaceFolder = workingFolder.path;
+        workingFolder.Enumerate();
         trace("set working folder to " + folder.path);
     }
 }
