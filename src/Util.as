@@ -1,5 +1,5 @@
 // c 2025-07-28
-// m 2025-07-30
+// m 2025-08-18
 
 dictionary icons;
 
@@ -45,10 +45,6 @@ void InitIcons() {  // vscode extension doesn't do well with large statically in
     icons.Set(".txt",           Icons::FileTextO);
     icons.Set(".wav",           Icons::VolumeUp);
     icons.Set(".xcf",           Icons::Gimp);
-}
-
-void InputCallback(UI::InputTextCallbackData@ data) {
-    ;
 }
 
 void SetWorkingFolder(const string&in path) {

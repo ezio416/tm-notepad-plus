@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-08-16
+// m 2025-08-18
 
 class File : Entry {
     MemoryBuffer@ buffer;
@@ -75,6 +75,10 @@ class File : Entry {
         load = true;
         selected = true;
         openFiles.InsertLast(this);
+    }
+
+    void InputTextCallback(UI::InputTextCallbackData@ data) {
+        ;
     }
 
     void Open() override {
@@ -178,7 +182,7 @@ class File : Entry {
             changed,
             UI::GetContentRegionAvail(),
             UI::InputTextFlags(UI::InputTextFlags::AllowTabInput | UI::InputTextFlags::CallbackAlways),
-            InputCallback
+            UI::InputTextCallback(InputTextCallback)
         );
         UI::PopFont();
 
