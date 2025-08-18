@@ -3,6 +3,26 @@
 
 dictionary icons;
 
+const uint64 KiB = 1024;
+const uint64 MiB = 1048576;
+const uint64 GiB = 1073741824;
+
+string FormatBytes(uint64 bytes) {
+    if (bytes < KiB) {
+        return Text::Format("%d bytes", bytes);
+    }
+
+    if (bytes < MiB) {
+        return Text::Format("%.2f KiB", double(bytes) / KiB);
+    }
+
+    if (bytes < GiB) {
+        return Text::Format("%.2f MiB", double(bytes) / MiB);
+    }
+
+    return Text::Format("%.2f GiB", double(bytes) / GiB);
+}
+
 string GetIcon(const string&in extension) {
     const string lower = extension.ToLower();
     if (icons.Exists(lower)) {

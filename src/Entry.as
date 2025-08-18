@@ -201,10 +201,30 @@ class Entry {
         UI::Separator();
 
         if (UI::MenuItem(Icons::Info + " Properties")) {
-            print("click properties");
+            @activeProperties = this;
         }
 
         UI::EndPopup();
+    }
+
+    void RenderProperties() final {
+        bool open;
+        if (UI::Begin(pluginTitle + " Properties", open, UI::WindowFlags::AlwaysAutoResize)) {
+            UI::Text(tostring(type) + ": " + name);
+            UI::Text("Path: " + path);
+            UI::Text("Exists: " + (type == Entry::Type::File ? IO::FileExists(path) : IO::FolderExists(path)));
+            UI::Text("Created: " + Time::FormatString("%F %T", IO::FileCreatedTime(path)));
+            UI::Text("Modified: " + Time::FormatString("%F %T", IO::FileModifiedTime(path)));
+            if (type == Entry::Type::File) {
+                const uint64 size = IO::FileSize(path);
+                UI::Text("Size: " + FormatBytes(size) + (size > KiB ? " (" + size + " bytes)" : ""));
+            }
+        }
+        UI::End();
+
+        if (!open) {
+            @activeProperties = null;
+        }
     }
 
     void RightClick() final {

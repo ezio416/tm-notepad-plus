@@ -6,6 +6,7 @@ const string  pluginIcon  = Icons::Pencil;
 Meta::Plugin@ pluginMeta  = Meta::ExecutingPlugin();
 const string  pluginTitle = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
 
+Entry@   activeProperties;
 File@[]  openFiles;
 string[] validDriveLetters;
 Folder@  workingFolder;
@@ -43,6 +44,10 @@ void Render() {
         RenderWindow();
     }
     UI::End();
+
+    if (activeProperties !is null) {
+        activeProperties.RenderProperties();
+    }
 }
 
 void RenderMenu() {
