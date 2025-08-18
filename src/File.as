@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-07-30
+// m 2025-08-16
 
 class File : Entry {
     MemoryBuffer@ buffer;
@@ -65,12 +65,16 @@ class File : Entry {
     }
 
     void Edit() {
-        selected = true;
-
-        if (openFiles.FindByRef(this) == -1) {
-            openFiles.InsertLast(this);
-            load = true;
+        for (uint i = 0; i < openFiles.Length; i++) {
+            if (openFiles[i].path == path) {
+                selected = true;
+                return;
+            }
         }
+
+        load = true;
+        selected = true;
+        openFiles.InsertLast(this);
     }
 
     void Open() override {
@@ -115,17 +119,19 @@ class File : Entry {
             flags |= UI::TabItemFlags::SetSelected;
             selected = false;
         }
+
         if (dirty) {
             flags |= UI::TabItemFlags::UnsavedDocument;
-            const bool open = UI::BeginTabItem(name + "##" + path, flags);
-            UI::SetItemTooltip(path);
+            const bool open = UI::BeginTabItem((valid ? "" : "\\$F00") + name + "##" + path, flags);
+            UI::SetItemTooltip(path + (valid ? "" : "\nReference is invalid, you should close this tab!"));
             if (!open) {
                 return;
             }
+
         } else {
             bool open = true;
-            const bool shown = UI::BeginTabItem(name + "##" + path, open, flags);
-            UI::SetItemTooltip(path);
+            const bool shown = UI::BeginTabItem((valid ? "" : "\\$F00") + name + "##" + path, open, flags);
+            UI::SetItemTooltip(path + (valid ? "" : "\nReference is invalid, you should close this tab!"));
             if (!open) {
                 if (shown) {
                     UI::EndTabItem();
@@ -160,8 +166,7 @@ class File : Entry {
         UI::SameLine();
         UI::BeginDisabled(!dirty);
         if (UI::Button(Icons::Undo + " Revert")) {
-            unsavedContents = contents;
-            dirty = false;
+            Revert();
         }
         UI::EndDisabled();
 
@@ -182,6 +187,13 @@ class File : Entry {
         }
 
         UI::EndTabItem();
+    }
+
+    void Revert() {
+        if (dirty) {
+            unsavedContents = contents;
+            dirty = false;
+        }
     }
 
     bool Write() {

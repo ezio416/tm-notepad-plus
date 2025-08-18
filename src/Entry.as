@@ -1,5 +1,5 @@
 // c 2025-07-28
-// m 2025-07-30
+// m 2025-08-18
 
 enum EntryType {
     File,
@@ -15,6 +15,7 @@ class Entry {
     string    path;
     bool      renameOpen      = false;
     EntryType type            = EntryType::Unknown;
+    bool      valid           = true;
 
     bool get_exists() {  // override
         return false;

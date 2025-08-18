@@ -1,12 +1,14 @@
 // c 2025-07-27
-// m 2025-07-30
+// m 2025-08-18
 
 class Folder : Entry {
-    Entry@[] entries;
-    bool     enumerated   = false;
-    bool     treeOpen     = false;
-    bool     pluginFolder = false;
-    string   pluginId;
+    dictionary _entries;
+    Entry@[]   entries;
+    bool       enumerated   = false;
+    bool       favorite     = false;
+    bool       treeOpen     = false;
+    bool       pluginFolder = false;
+    string     pluginId;
 
     bool get_exists() override {
         return IO::FolderExists(path);
@@ -25,6 +27,20 @@ class Folder : Entry {
         }
 
         pluginId = Path::GetFileName(this.path);
+    }
+
+    void ClearEntries() {
+        for (int i = entries.Length - 1; i >= 0; i--) {
+            entries[i].valid = false;
+
+            if (entries[i].type == EntryType::Folder) {
+                cast<Folder>(entries[i]).ClearEntries();
+            }
+
+            entries.RemoveAt(i);
+        }
+
+        _entries.DeleteAll();
     }
 
     bool Create() override {
@@ -91,23 +107,73 @@ class Folder : Entry {
     }
 
     void Enumerate() {
-        entries = {};
+        if (!exists) {
+            ClearEntries();
+            return;
+        }
 
-        if (exists) {
-            string[]@ index = IO::IndexFolder(path, false);
-            for (uint i = 0; i < index.Length; i++) {
-                if (IO::FileExists(index[i])) {
+        string[]@ index = IO::IndexFolder(path, false);
+        string name;
+        for (uint i = 0; i < index.Length; i++) {
+            name = Path::GetFileName(
+                index[i].EndsWith("/")
+                ? index[i].SubStr(0, index[i].Length - 1)
+                : index[i]
+            );
+
+            if (IO::FileExists(index[i])) {
+                if (_entries.Exists(name)) {
+                    auto file = cast<File>(_entries[name]);
+                    if (file is null) {
+                        @file = File(cast<Entry>(_entries[name]).path);
+
+                        _entries.Set(name, @file);
+
+                        for (uint j = 0; j < entries.Length; j++) {
+                            if (entries[j].name == name) {
+                                @entries[j] = file;
+                                break;
+                            }
+                        }
+                    }
+
+                } else {
                     auto file = File(index[i]);
-                    // trace("found file: " + file.path);
-                    @file.parent = this;
+                    _entries.Set(name, @file);
                     entries.InsertLast(file);
+                }
+
+            } else {
+                if (_entries.Exists(name)) {
+                    auto folder = cast<Folder>(_entries[name]);
+                    if (folder is null) {
+                        @folder = Folder(cast<Entry>(_entries[name]).path);
+
+                        _entries.Set(name, @folder);
+
+                        for (uint j = 0; j < entries.Length; j++) {
+                            if (entries[j].name == name) {
+                                @entries[j] = folder;
+                                break;
+                            }
+                        }
+                    }
 
                 } else {
                     auto folder = Folder(index[i]);
-                    // trace("found folder: " + folder.path);
-                    @folder.parent = this;
+                    _entries.Set(name, @folder);
                     entries.InsertLast(folder);
                 }
+            }
+        }
+
+        for (int i = entries.Length - 1; i >= 0; i--) {
+            if (index.Find(entries[i].path + (entries[i].type == EntryType::Folder ? "/" : "")) == -1) {
+                entries[i].valid = false;
+                if (_entries.Exists(entries[i].name)) {
+                    _entries.Delete(entries[i].name);
+                }
+                entries.RemoveAt(i);
             }
         }
 
@@ -134,19 +200,15 @@ class Folder : Entry {
     }
 
     File@ GetFile(const string&in name, const bool recursive = false) {
-        for (uint i = 0; i < entries.Length; i++) {
-            switch (entries[i].type) {
-                case EntryType::File:
-                    if (entries[i].name == name) {
-                        return cast<File>(entries[i]);
-                    }
-                    break;
+        if (_entries.Exists(name)) {
+            return cast<File>(_entries[name]);
+        }
 
-                case EntryType::Folder:
-                    if (recursive) {
-                        return cast<Folder>(entries[i]).GetFile(name, true);
-                    }
-                    break;
+        if (recursive) {
+            for (uint i = 0; i < entries.Length; i++) {
+                if (entries[i].type == EntryType::Folder) {
+                    return cast<Folder>(entries[i]).GetFile(name, true);
+                }
             }
         }
 
@@ -154,18 +216,18 @@ class Folder : Entry {
     }
 
     Folder@ GetFolder(const string&in name, const bool recursive = false) {
-        for (uint i = 0; i < entries.Length; i++) {
-            switch (entries[i].type) {
-                case EntryType::Folder:
-                    if (entries[i].name == name) {
-                        return cast<Folder>(entries[i]);
-                    }
+        if (_entries.Exists(name)) {
+            return cast<Folder>(_entries[name]);
+        }
 
-                    if (recursive) {
-                        return cast<Folder>(entries[i]).GetFolder(name, true);
-                    }
-
-                    break;
+        if (recursive) {
+            for (uint i = 0; i < entries.Length; i++) {
+                if (entries[i].type == EntryType::Folder) {
+                    return entries[i].name == name
+                        ? cast<Folder>(entries[i])
+                        : cast<Folder>(entries[i]).GetFolder(name, true)
+                    ;
+                }
             }
         }
 
@@ -215,10 +277,11 @@ class Folder : Entry {
             return;
         }
 
+        const float indent = UI::GetScale() * 30.0f;
+
         if (this is workingFolder) {
-            const float indent = UI::GetScale() * 30.0f;
             UI::Indent(indent);
-            if (UI::Selectable("\\$FF8" + icon + "\\$G ..", false)) {
+            if (UI::Selectable("\\$FF8" + Icons::Folder + "\\$G ..", false)) {
                 if (parent is null) {
                     @parent = Folder(Path::GetDirectoryName(path));
                 }
@@ -236,12 +299,14 @@ class Folder : Entry {
         for (uint i = 0; i < entries.Length; i++) {
             switch (entries[i].type) {
                 case EntryType::File:
+                    UI::Indent(indent);
                     if (UI::Selectable("\\$88F" + entries[i].icon + "\\$G " + entries[i].name, false)) {
                         cast<File>(entries[i]).Edit();
                     }
                     if (UI::IsItemClicked(UI::MouseButton::Right)) {
                         entries[i].RightClick();
                     }
+                    UI::Indent(-indent);
                     break;
 
                 case EntryType::Folder:
