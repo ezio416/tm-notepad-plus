@@ -126,6 +126,7 @@ class Folder : Entry {
                     auto file = cast<File>(_entries[name]);
                     if (file is null) {
                         @file = File(cast<Entry>(_entries[name]).path);
+                        @file.parent = this;
 
                         _entries.Set(name, @file);
 
@@ -139,6 +140,7 @@ class Folder : Entry {
 
                 } else {
                     auto file = File(index[i]);
+                    @file.parent = this;
                     _entries.Set(name, @file);
                     entries.InsertLast(file);
                 }
@@ -148,6 +150,7 @@ class Folder : Entry {
                     auto folder = cast<Folder>(_entries[name]);
                     if (folder is null) {
                         @folder = Folder(cast<Entry>(_entries[name]).path);
+                        @folder.parent = this;
 
                         _entries.Set(name, @folder);
 
@@ -161,6 +164,7 @@ class Folder : Entry {
 
                 } else {
                     auto folder = Folder(index[i]);
+                    @folder.parent = this;
                     _entries.Set(name, @folder);
                     entries.InsertLast(folder);
                 }

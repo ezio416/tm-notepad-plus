@@ -160,6 +160,8 @@ class Entry {
                         }
                         break;
                 }
+
+                UI::CloseCurrentPopup();
             }
 
             UI::EndMenu();
@@ -190,6 +192,7 @@ class Entry {
                 if (parent !is null) {
                     parent.Enumerate();
                 }
+                UI::CloseCurrentPopup();
             }
             UI::EndDisabled();
 
