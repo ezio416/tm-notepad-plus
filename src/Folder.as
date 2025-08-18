@@ -262,7 +262,7 @@ class Folder : Entry {
         }
     }
 
-    void RenderTreeSimple() {
+    void RenderTree() {
         int flags = UI::TreeNodeFlags::None;
         if (this is workingFolder) {
             flags |= UI::TreeNodeFlags::DefaultOpen;
@@ -318,7 +318,7 @@ class Folder : Entry {
                     break;
 
                 case Entry::Type::Folder:
-                    cast<Folder>(entries[i]).RenderTreeSimple();
+                    cast<Folder>(entries[i]).RenderTree();
                     break;
             }
         }

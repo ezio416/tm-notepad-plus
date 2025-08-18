@@ -84,7 +84,7 @@ void RenderWindow() {
             UI::SeparatorText("Explorer");
 
             if (UI::BeginChild("##child-explorer")) {
-                workingFolder.RenderTreeSimple();
+                workingFolder.RenderTree();
             }
             UI::EndChild();
         }
