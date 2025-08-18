@@ -23,7 +23,7 @@ class File : Entry {
 
     File(const string&in path) {
         super(path);
-        type = EntryType::File;
+        type = Entry::Type::File;
     }
 
     bool Copy(const string&in path) {

@@ -20,7 +20,7 @@ class Folder : Entry {
 
     Folder(const string&in path) {
         super(path);
-        type = EntryType::Folder;
+        type = Entry::Type::Folder;
 
         while (this.path.EndsWith("/")) {
             this.path = this.path.SubStr(0, this.path.Length - 1);
@@ -33,7 +33,7 @@ class Folder : Entry {
         for (int i = entries.Length - 1; i >= 0; i--) {
             entries[i].valid = false;
 
-            if (entries[i].type == EntryType::Folder) {
+            if (entries[i].type == Entry::Type::Folder) {
                 cast<Folder>(entries[i]).ClearEntries();
             }
 
@@ -168,7 +168,7 @@ class Folder : Entry {
         }
 
         for (int i = entries.Length - 1; i >= 0; i--) {
-            if (index.Find(entries[i].path + (entries[i].type == EntryType::Folder ? "/" : "")) == -1) {
+            if (index.Find(entries[i].path + (entries[i].type == Entry::Type::Folder ? "/" : "")) == -1) {
                 entries[i].valid = false;
                 if (_entries.Exists(entries[i].name)) {
                     _entries.Delete(entries[i].name);
@@ -206,7 +206,7 @@ class Folder : Entry {
 
         if (recursive) {
             for (uint i = 0; i < entries.Length; i++) {
-                if (entries[i].type == EntryType::Folder) {
+                if (entries[i].type == Entry::Type::Folder) {
                     return cast<Folder>(entries[i]).GetFile(name, true);
                 }
             }
@@ -222,7 +222,7 @@ class Folder : Entry {
 
         if (recursive) {
             for (uint i = 0; i < entries.Length; i++) {
-                if (entries[i].type == EntryType::Folder) {
+                if (entries[i].type == Entry::Type::Folder) {
                     return entries[i].name == name
                         ? cast<Folder>(entries[i])
                         : cast<Folder>(entries[i]).GetFolder(name, true)
@@ -268,6 +268,7 @@ class Folder : Entry {
         if (UI::IsItemClicked(UI::MouseButton::Right)) {
             RightClick();
         }
+        RenderContextMenu();
         if (treeOpen) {
             if (!enumerated) {
                 Enumerate();
@@ -298,7 +299,7 @@ class Folder : Entry {
 
         for (uint i = 0; i < entries.Length; i++) {
             switch (entries[i].type) {
-                case EntryType::File:
+                case Entry::Type::File:
                     UI::Indent(indent);
                     if (UI::Selectable("\\$88F" + entries[i].icon + "\\$G " + entries[i].name, false)) {
                         cast<File>(entries[i]).Edit();
@@ -307,9 +308,12 @@ class Folder : Entry {
                         entries[i].RightClick();
                     }
                     UI::Indent(-indent);
+
+                    entries[i].RenderContextMenu();
+
                     break;
 
-                case EntryType::Folder:
+                case Entry::Type::Folder:
                     cast<Folder>(entries[i]).RenderTreeSimple();
                     break;
             }
@@ -323,21 +327,7 @@ class Folder : Entry {
             return;
         }
 
-        Entry@[] sorted;
-
-        for (uint i = 0; i < entries.Length; i++) {
-            if (entries[i].type == EntryType::Folder) {
-                sorted.InsertLast(entries[i]);
-            }
-        }
-
-        for (uint i = 0; i < entries.Length; i++) {
-            if (entries[i].type == EntryType::File) {
-                sorted.InsertLast(entries[i]);
-            }
-        }
-
-        entries = sorted;
+        entries.Sort(Entry::SortAsc);
     }
 
     void UnloadPlugin() {
