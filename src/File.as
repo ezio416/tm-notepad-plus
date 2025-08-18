@@ -4,9 +4,10 @@
 class File : Entry {
     MemoryBuffer@ buffer;
     string        contents;
-    bool          dirty    = false;
-    bool          load     = false;
-    bool          selected = false;
+    bool          dirty       = false;
+    bool          holdingCtrlS = false;
+    bool          load        = false;
+    bool          selected    = false;
     string        unsavedContents;
 
     bool get_exists() override {
@@ -78,7 +79,21 @@ class File : Entry {
     }
 
     void InputTextCallback(UI::InputTextCallbackData@ data) {
-        ;
+        if (false
+            or UI::IsKeyDown(UI::Key::LeftCtrl)
+            or UI::IsKeyDown(UI::Key::RightCtrl)
+        ) {
+            if (UI::IsKeyDown(UI::Key::S)) {
+                if (!holdingCtrlS) {
+                    holdingCtrlS = true;
+                    if (dirty) {
+                        Write();
+                    }
+                }
+            } else {
+                holdingCtrlS = false;
+            }
+        }
     }
 
     void Open() override {
@@ -173,6 +188,8 @@ class File : Entry {
             Revert();
         }
         UI::EndDisabled();
+
+        UI::Text("Note: this text input box does not properly render format codes, i.e. \\$ABC\\\\\\$$$ABC");
 
         bool changed = false;
         UI::PushFont(UI::Font::DefaultMono, S_EditorFontSize);
