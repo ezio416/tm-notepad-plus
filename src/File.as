@@ -189,7 +189,7 @@ class File : Entry {
         }
         UI::EndDisabled();
 
-        UI::Text("Note: this text input box does not properly render format codes, i.e. \\$ABC\\\\\\$$$ABC");
+        UI::Text("Note: this text input box does not properly render format codes, i.e. \\$4FC\\\\\\$$$4FC");
 
         bool changed = false;
         UI::PushFont(UI::Font::DefaultMono, S_EditorFontSize);
