@@ -175,7 +175,7 @@ class File : Entry {
         UI::EndDisabled();
 
         bool changed = false;
-        UI::PushFont(UI::Font::DefaultMono);
+        UI::PushFont(UI::Font::DefaultMono, S_EditorFontSize);
         unsavedContents = UI::InputTextMultiline(
             "##unsaved",
             unsavedContents,

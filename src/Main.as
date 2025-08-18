@@ -20,6 +20,10 @@ void Main() {
     }
 }
 
+void OnSettingsChanged() {
+    S_EditorFontSize = Math::Clamp(S_EditorFontSize, 8, 100);
+}
+
 void Render() {
     if (false
         or !S_Enabled

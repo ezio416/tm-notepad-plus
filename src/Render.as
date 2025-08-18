@@ -27,6 +27,15 @@ void RenderWindow() {
             UI::EndMenu();
         }
 
+        if (UI::BeginMenu("View")) {
+            if (UI::BeginMenu("Editor font size")) {
+                S_EditorFontSize = Math::Clamp(UI::InputInt("##font-size", S_EditorFontSize), 8, 100);
+                UI::EndMenu();
+            }
+
+            UI::EndMenu();
+        }
+
         UI::EndMenuBar();
     }
 
