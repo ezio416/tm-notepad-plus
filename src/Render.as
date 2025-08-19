@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-07-30
+// m 2025-08-19
 
 void RenderFileTabs() {
     UI::BeginTabBar("##tabs-open", UI::TabBarFlags::Reorderable);
@@ -23,6 +23,33 @@ void RenderWindow() {
 
                 UI::EndMenu();
             }
+
+            UI::Separator();
+
+            UI::BeginDisabled(Recent::folders.Length == 0);
+            if (UI::BeginMenu(Icons::ClockO + " Open recent")) {
+                if (UI::MenuItem(Icons::TrashO + " Clear recent")) {
+                    Recent::Clear();
+                    Recent::Save();
+                    Recent::Add(workingFolder);
+                }
+
+                UI::Separator();
+
+                for (int i = Recent::folders.Length - 1; i >= 0; i--) {
+                    UI::BeginDisabled(true
+                        and workingFolder !is null
+                        and workingFolder.path == Recent::folders[i]
+                    );
+                    if (UI::MenuItem(Recent::folders[i])) {
+                        SetWorkingFolder(Recent::folders[i]);
+                    }
+                    UI::EndDisabled();
+                }
+
+                UI::EndMenu();
+            }
+            UI::EndDisabled();
 
             UI::EndMenu();
         }

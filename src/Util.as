@@ -88,5 +88,6 @@ void SetWorkingFolder(Folder@ folder) {
         S_WorkspaceFolder = workingFolder.path;
         workingFolder.Enumerate();
         trace("set working folder to " + folder.path);
+        Recent::Add(folder);
     }
 }
