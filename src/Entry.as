@@ -221,6 +221,7 @@ class Entry {
             if (type == Entry::Type::File) {
                 const uint64 size = IO::FileSize(path);
                 UI::Text("Size: " + FormatBytes(size) + (size > KiB ? " (" + size + " bytes)" : ""));
+                UI::Text("Type: " + tostring(cast<File>(this).fileType));
             }
         }
         UI::End();

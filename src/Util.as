@@ -24,9 +24,8 @@ string FormatBytes(uint64 bytes) {
 }
 
 string GetIcon(const string&in extension) {
-    const string lower = extension.ToLower();
-    if (icons.Exists(lower)) {
-        return string(icons[lower]);
+    if (icons.Exists(extension)) {
+        return string(icons[extension]);
     }
 
     return Icons::File;

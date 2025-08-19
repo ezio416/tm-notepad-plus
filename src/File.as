@@ -1,21 +1,34 @@
 // c 2025-07-27
-// m 2025-08-18
+// m 2025-08-19
+
+namespace File {
+    enum Type {
+        Audio,
+        Image,
+        Text,
+        Unknown
+    }
+}
 
 class File : Entry {
-    MemoryBuffer@ buffer;
-    string        contents;
-    bool          dirty       = false;
-    bool          holdingCtrlS = false;
-    bool          load        = false;
-    bool          selected    = false;
-    string        unsavedContents;
+    Audio::Voice@  audio;
+    MemoryBuffer@  buffer;
+    string         contents;
+    bool           dirty        = false;
+    File::Type     fileType     = File::Type::Unknown;
+    bool           holdingCtrlS = false;
+    bool           load         = false;
+    Audio::Sample@ sample;
+    bool           selected     = false;
+    UI::Texture@   texture;
+    string         unsavedContents;
 
     bool get_exists() override {
         return IO::FileExists(path);
     }
 
     string get_extension() {
-        return Path::GetExtension(path);
+        return Path::GetExtension(path).ToLower();
     }
 
     string get_icon() override {
@@ -73,7 +86,9 @@ class File : Entry {
             }
         }
 
-        load = true;
+        if (fileType == File::Type::Unknown) {
+            load = true;
+        }
         selected = true;
         openFiles.InsertLast(this);
     }
@@ -101,7 +116,7 @@ class File : Entry {
     }
 
     bool Read() {
-        warn("reading file: " + path);
+        trace("reading file (text): " + path);
 
         try {
             IO::File file(path, IO::FileMode::Read);
@@ -118,7 +133,7 @@ class File : Entry {
     }
 
     bool ReadBuffer() {
-        warn("reading file: " + path);
+        trace("reading file (bytes): " + path);
 
         try {
             IO::File file(path, IO::FileMode::Read);
@@ -169,7 +184,122 @@ class File : Entry {
         if (load) {
             load = false;
             Read();
+            ReadBuffer();
         }
+
+        if (fileType == File::Type::Unknown) {
+            buffer.Seek(0);
+            if (buffer.ReadUInt16() == 0x4D42) {  // bmp
+                fileType = File::Type::Image;
+            }
+        }
+
+        if (fileType == File::Type::Unknown) {
+            buffer.Seek(0);
+            if (buffer.ReadUInt32() & 0xFFFFFF == 0xFFD8FF) {  // jpg
+                fileType = File::Type::Image;
+            }
+        }
+
+        if (fileType == File::Type::Unknown) {
+            buffer.Seek(0);
+            if (buffer.ReadUInt64() == 0x0A1A0A0D474E5089) {  // png
+                fileType = File::Type::Image;
+            }
+        }
+
+        if (fileType == File::Type::Unknown) {
+            buffer.Seek(0);
+            uint bytes = buffer.ReadUInt32();
+            if (bytes == 0x46464952) {  // riff
+                buffer.Seek(8);
+                bytes = buffer.ReadUInt32();
+                if (bytes == 0x45564157) {  // wav
+                    fileType = File::Type::Audio;
+                } else if (bytes == 0x50424557) {  // webp, unsupported
+                    fileType = File::Type::Image;
+                }
+
+            } else if (false
+                or bytes & 0xFFFFFF == 0x334449
+                or bytes & 0xFFFF == 0xF2FF
+                or bytes & 0xFFFF == 0xF3FF
+                or bytes & 0xFFFF == 0xFBFF
+            ) {  // mp3
+                fileType = File::Type::Audio;
+            }
+        }
+
+        if (true
+            and fileType == File::Type::Image
+            and texture is null
+        ) {
+            @texture = UI::LoadTexture(buffer);
+        }
+
+        if (texture !is null) {
+            fileType = File::Type::Image;
+
+            const vec2 size = texture.GetSize();
+            UI::Text("image size: " + tostring(size));
+
+            if (UI::BeginChild("##child-image")) {
+                UI::Image(texture, vec2(UI::GetContentRegionAvail().x) * vec2(1.0f, size.y / Math::Max(size.x, 1.0f)));
+            }
+            UI::EndChild();
+
+            UI::EndTabItem();
+            return;
+        }
+
+        if (true
+            and fileType == File::Type::Audio
+            and audio is null
+        ) {
+            @sample = Audio::LoadSample(buffer);
+            try {
+                @audio = Audio::Play(sample, 0.5f);
+                audio.Pause();
+            } catch { }
+        }
+
+        if (audio !is null) {
+            fileType = File::Type::Audio;
+
+            if (audio.IsPaused()) {
+                if (UI::Button(Icons::Play)) {
+                    audio.Play();
+                }
+            } else if (UI::Button(Icons::Pause)) {
+                audio.Pause();
+            }
+
+            UI::SameLine();
+            const uint position = uint(audio.GetPosition() * 1000.0);
+            const uint length = uint(audio.GetLength() * 1000.0);
+            UI::SetNextItemWidth(UI::GetContentRegionAvail().x);
+            UI::SliderInt(
+                "##audio-slider",
+                position,
+                0,
+                length,
+                Time::Format(position) + " / " + Time::Format(length),
+                UI::SliderFlags::NoInput
+            );
+
+            if (true
+                and position == length
+                and sample !is null
+            ) {
+                @audio = Audio::Play(sample, 0.5f);
+                audio.Pause();
+            }
+
+            UI::EndTabItem();
+            return;
+        }
+
+        fileType = File::Type::Text;
 
         if (UI::Button(Icons::Upload + " Load")) {
             Read();
