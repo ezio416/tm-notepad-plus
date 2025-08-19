@@ -187,44 +187,40 @@ class File : Entry {
             ReadBuffer();
         }
 
-        if (fileType == File::Type::Unknown) {
-            buffer.Seek(0);
-            if (buffer.ReadUInt16() == 0x4D42) {  // bmp
-                fileType = File::Type::Image;
-            }
+        buffer.Seek(0);
+        const uint64 magic = buffer.ReadUInt64();
+        buffer.Seek(0);
+
+        if (true
+            and fileType == File::Type::Unknown
+            and (false
+                or magic & 0xFFFF == 0x4D42                  // bmp
+                or magic & 0xFFFFFF == 0xFFD8FF              // jpg
+                or magic == 0x0A1A0A0D474E5089               // png
+                or magic & 0xFFFFFFFFFFFF == 0x613738464947  // gif
+                or magic & 0xFFFFFFFFFFFF == 0x613938464947  // gif
+            )
+        ) {
+            fileType = File::Type::Image;
         }
 
         if (fileType == File::Type::Unknown) {
-            buffer.Seek(0);
-            if (buffer.ReadUInt32() & 0xFFFFFF == 0xFFD8FF) {  // jpg
-                fileType = File::Type::Image;
-            }
-        }
-
-        if (fileType == File::Type::Unknown) {
-            buffer.Seek(0);
-            if (buffer.ReadUInt64() == 0x0A1A0A0D474E5089) {  // png
-                fileType = File::Type::Image;
-            }
-        }
-
-        if (fileType == File::Type::Unknown) {
-            buffer.Seek(0);
-            uint bytes = buffer.ReadUInt32();
-            if (bytes == 0x46464952) {  // riff
+            if (magic & 0xFFFFFFFF == 0x46464952) {  // riff
                 buffer.Seek(8);
-                bytes = buffer.ReadUInt32();
-                if (bytes == 0x45564157) {  // wav
-                    fileType = File::Type::Audio;
-                } else if (bytes == 0x50424557) {  // webp, unsupported
-                    fileType = File::Type::Image;
+                switch (buffer.ReadUInt32()) {
+                    case 0x45564157:  // wav
+                        fileType = File::Type::Audio;
+                        break;
+                    case 0x50424557:  // webp, unsupported
+                        fileType = File::Type::Image;
+                        break;
                 }
 
             } else if (false
-                or bytes & 0xFFFFFF == 0x334449
-                or bytes & 0xFFFF == 0xF2FF
-                or bytes & 0xFFFF == 0xF3FF
-                or bytes & 0xFFFF == 0xFBFF
+                or magic & 0xFFFFFF == 0x334449
+                or magic & 0xFFFF == 0xF2FF
+                or magic & 0xFFFF == 0xF3FF
+                or magic & 0xFFFF == 0xFBFF
             ) {  // mp3
                 fileType = File::Type::Audio;
             }
@@ -242,6 +238,14 @@ class File : Entry {
 
             const vec2 size = texture.GetSize();
             UI::Text("image size: " + tostring(size));
+
+            if (extension == ".gif") {
+                UI::SameLine();
+                UI::Text("note: if this image is animated, only the first frame is shown");
+            } else if (extension == ".webp") {
+                UI::SameLine();
+                UI::Text("note: webp images are currently unsupported");
+            }
 
             if (UI::BeginChild("##child-image")) {
                 UI::Image(texture, vec2(UI::GetContentRegionAvail().x) * vec2(1.0f, size.y / Math::Max(size.x, 1.0f)));

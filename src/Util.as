@@ -72,6 +72,7 @@ void InitIcons() {  // vscode extension doesn't do well with large statically in
     icons.Set(".wav",           Icons::VolumeUp);
     icons.Set(".webp",          Icons::FileImageO);
     icons.Set(".xcf",           Icons::Gimp);
+    icons.Set(".xml",           Icons::Code);
 }
 
 void SetWorkingFolder(const string&in path) {
