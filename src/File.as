@@ -18,6 +18,7 @@ class File : Entry {
     File::Type     fileType     = File::Type::Unknown;
     bool           holdingCtrlS = false;
     bool           load         = false;
+    bool           loadAsText   = false;
     Audio::Sample@ sample;
     bool           selected     = false;
     UI::Texture@   texture;
@@ -78,7 +79,13 @@ class File : Entry {
         }
     }
 
-    void Edit() {
+    void Edit(const bool forceText = false) {
+        if (forceText) {
+            loadAsText = true;
+        } else if (fileType == File::Type::Text) {
+            fileType = File::Type::Unknown;
+        }
+
         for (uint i = 0; i < openFiles.Length; i++) {
             if (openFiles[i].path == path) {
                 selected = true;
@@ -181,6 +188,11 @@ class File : Entry {
             }
         }
 
+        if (loadAsText) {
+            loadAsText = false;
+            fileType = File::Type::Text;
+        }
+
         if (load) {
             load = false;
             Read();
@@ -233,7 +245,10 @@ class File : Entry {
             @texture = UI::LoadTexture(buffer);
         }
 
-        if (texture !is null) {
+        if (true
+            and fileType == File::Type::Image
+            and texture !is null
+        ) {
             fileType = File::Type::Image;
 
             const vec2 size = texture.GetSize();
@@ -267,7 +282,10 @@ class File : Entry {
             } catch { }
         }
 
-        if (audio !is null) {
+        if (true
+            and fileType == File::Type::Audio
+            and audio !is null
+        ) {
             fileType = File::Type::Audio;
 
             if (audio.IsPaused()) {

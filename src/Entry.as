@@ -1,5 +1,5 @@
 // c 2025-07-28
-// m 2025-08-18
+// m 2025-08-19
 
 namespace Entry {
     enum Type {
@@ -85,6 +85,11 @@ class Entry {
                 if (UI::MenuItem(Icons::ExternalLinkSquare + " Open in Editor")) {
                     Open();
                 }
+
+                if (UI::MenuItem(Icons::ExternalLinkSquare + " Open in Editor (Text)")) {
+                    cast<File>(this).Edit(true);
+                }
+
                 break;
 
             case Entry::Type::Folder:
