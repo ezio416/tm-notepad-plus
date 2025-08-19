@@ -16,6 +16,7 @@ void Main() {
 
     InitDriveLetters();
 
+    Favorite::Load();
     Recent::Load();
 
     if (S_WorkspaceFolder.Length > 0) {

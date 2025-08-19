@@ -26,6 +26,30 @@ void RenderWindow() {
 
             UI::Separator();
 
+            UI::BeginDisabled(Favorite::folders.Length == 0);
+            if (UI::BeginMenu(Icons::Star + " Open favorite")) {
+                if (UI::MenuItem(Icons::TrashO + " Clear favorites")) {
+                    Favorite::Clear();
+                    Favorite::Save();
+                }
+
+                UI::Separator();
+
+                for (uint i = 0; i < Favorite::folders.Length; i++) {
+                    UI::BeginDisabled(true
+                        and workingFolder !is null
+                        and workingFolder.path == Favorite::folders[i]
+                    );
+                    if (UI::MenuItem(Favorite::folders[i])) {
+                        SetWorkingFolder(Favorite::folders[i]);
+                    }
+                    UI::EndDisabled();
+                }
+
+                UI::EndMenu();
+            }
+            UI::EndDisabled();
+
             UI::BeginDisabled(Recent::folders.Length == 0);
             if (UI::BeginMenu(Icons::ClockO + " Open recent")) {
                 if (UI::MenuItem(Icons::TrashO + " Clear recent")) {

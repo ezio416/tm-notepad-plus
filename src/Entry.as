@@ -117,6 +117,18 @@ class Entry {
         if (type == Entry::Type::Folder) {
             UI::Separator();
 
+            if (Favorite::folders.Find(path) > -1) {
+                if (UI::MenuItem(Icons::Star + " Remove favorite")) {
+                    Favorite::Remove(path);
+                }
+            } else {
+                if (UI::MenuItem(Icons::StarO + " Add favorite")) {
+                    Favorite::Add(path);
+                }
+            }
+
+            UI::Separator();
+
             if (UI::BeginMenu(Icons::Plus + " New")) {
                 if (UI::MenuItem(Icons::File + " File")) {
                     trace("creating new file in " + path);
