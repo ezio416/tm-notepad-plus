@@ -1,5 +1,5 @@
 // c 2025-07-28
-// m 2025-08-18
+// m 2025-08-19
 
 dictionary icons;
 
@@ -47,8 +47,15 @@ void InitDriveLetters() {
 void InitIcons() {  // vscode extension doesn't do well with large statically initialized dicts
     icons.Set(".as",            Icons::Heartbeat);
     icons.Set(".bmp",           Icons::FileImageO);
+    icons.Set(".c",             Icons::C);
+    icons.Set(".cpp",           Icons::Code);
+    icons.Set(".cs",            Icons::Code);
+    icons.Set(".css",           Icons::Code);
     icons.Set(".gitattributes", Icons::CodeFork);
     icons.Set(".gitignore",     Icons::CodeFork);
+    icons.Set(".h",             Icons::C);
+    icons.Set(".htm",           Icons::Code);
+    icons.Set(".html",          Icons::Code);
     icons.Set(".ini",           Icons::Wrench);
     icons.Set(".jpg",           Icons::FileImageO);
     icons.Set(".jpeg",          Icons::FileImageO);
@@ -63,6 +70,7 @@ void InitIcons() {  // vscode extension doesn't do well with large statically in
     icons.Set(".toml",          Icons::Wrench);
     icons.Set(".txt",           Icons::FileTextO);
     icons.Set(".wav",           Icons::VolumeUp);
+    icons.Set(".webp",          Icons::FileImageO);
     icons.Set(".xcf",           Icons::Gimp);
 }
 
