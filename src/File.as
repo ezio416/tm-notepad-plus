@@ -370,7 +370,7 @@ class File : Entry {
     }
 
     bool Write() {
-        warn("writing file: " + path);
+        warn("writing file (text): " + path);
 
         try {
             IO::File file(path, IO::FileMode::Write);
@@ -387,7 +387,7 @@ class File : Entry {
     }
 
     bool WriteBuffer() {
-        warn("writing file: " + path);
+        warn("writing file (binary): " + path);
 
         try {
             IO::File file(path, IO::FileMode::Write);
