@@ -249,8 +249,6 @@ class File : Entry {
             and fileType == File::Type::Image
             and texture !is null
         ) {
-            fileType = File::Type::Image;
-
             const vec2 size = texture.GetSize();
             UI::Text("image size: " + tostring(size));
 
@@ -286,8 +284,6 @@ class File : Entry {
             and fileType == File::Type::Audio
             and audio !is null
         ) {
-            fileType = File::Type::Audio;
-
             if (audio.IsPaused()) {
                 if (UI::Button(Icons::Play)) {
                     audio.Play();

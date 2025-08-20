@@ -82,10 +82,10 @@ void SetWorkingFolder(const string&in path) {
 void SetWorkingFolder(Folder@ folder) {
     if (true
         and folder !is null
-        and IO::FolderExists(folder.path)
+        and folder.exists
     ) {
         @workingFolder = folder;
-        S_WorkspaceFolder = workingFolder.path;
+        S_WorkspaceFolder = folder.path;
         workingFolder.Enumerate();
         trace("set working folder to " + folder.path);
         Recent::Add(folder);
