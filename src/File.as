@@ -344,7 +344,7 @@ class File : Entry {
         UI::Text("Note: this text input box does not properly render format codes, i.e. \\$4FC\\\\\\$$$4FC");
 
         bool changed = false;
-        UI::PushFont(UI::Font::DefaultMono, S_EditorFontSize);
+        UI::PushFont(S_EditorMonospace ? UI::Font::DefaultMono : UI::Font::Default, S_EditorFontSize);
         unsavedContents = UI::InputTextMultiline(
             "##unsaved",
             unsavedContents,

@@ -26,8 +26,7 @@ void RenderWindow() {
 
             UI::Separator();
 
-            UI::BeginDisabled(Favorite::folders.Length == 0);
-            if (UI::BeginMenu(Icons::Star + " Open favorite")) {
+            if (UI::BeginMenu(Icons::Star + " Open favorite", Favorite::folders.Length > 0)) {
                 if (UI::MenuItem(Icons::TrashO + " Clear favorites")) {
                     Favorite::Clear();
                     Favorite::Save();
@@ -48,10 +47,8 @@ void RenderWindow() {
 
                 UI::EndMenu();
             }
-            UI::EndDisabled();
 
-            UI::BeginDisabled(Recent::folders.Length == 0);
-            if (UI::BeginMenu(Icons::ClockO + " Open recent")) {
+            if (UI::BeginMenu(Icons::ClockO + " Open recent", Recent::folders.Length > 0)) {
                 if (UI::MenuItem(Icons::TrashO + " Clear recent")) {
                     Recent::Clear();
                     Recent::Save();
@@ -73,12 +70,15 @@ void RenderWindow() {
 
                 UI::EndMenu();
             }
-            UI::EndDisabled();
 
             UI::EndMenu();
         }
 
         if (UI::BeginMenu("View")) {
+            if (UI::MenuItem("Editor monospace font", "", S_EditorMonospace)) {
+                S_EditorMonospace = !S_EditorMonospace;
+            }
+
             if (UI::BeginMenu("Editor font size")) {
                 S_EditorFontSize = Math::Clamp(UI::InputInt("##font-size", S_EditorFontSize), 8, 100);
                 UI::EndMenu();
