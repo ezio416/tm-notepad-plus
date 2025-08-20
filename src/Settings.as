@@ -2,6 +2,9 @@
 // m 2025-08-19
 
 [Setting hidden]
+bool S_InitDefaultFavorites = false;
+
+[Setting hidden]
 string S_WorkspaceFolder;
 
 

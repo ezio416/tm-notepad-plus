@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-08-19
+// m 2025-08-20
 
 const string  pluginColor = "\\$F0A";
 const string  pluginIcon  = Icons::Pencil;
@@ -19,6 +19,10 @@ void Main() {
 
     if (S_WorkspaceFolder.Length > 0) {
         SetWorkingFolder(S_WorkspaceFolder);
+    }
+
+    if (!S_InitDefaultFavorites) {
+        Favorite::InitDefault();
     }
 }
 

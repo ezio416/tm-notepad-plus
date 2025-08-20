@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-08-19
+// m 2025-08-20
 
 void RenderFileTabs() {
     UI::BeginTabBar("##tabs-open", UI::TabBarFlags::Reorderable);
@@ -27,7 +27,7 @@ void RenderWindow() {
             UI::Separator();
 
             if (UI::BeginMenu(Icons::Star + " Open favorite", Favorite::folders.Length > 0)) {
-                if (UI::MenuItem(Icons::TrashO + " Clear favorites")) {
+                if (UI::MenuItem(Icons::TrashO + " Clear favorites \\$AAA(tip: right-click individual entries to remove them)")) {
                     Favorite::Clear();
                     Favorite::Save();
                 }
@@ -43,13 +43,20 @@ void RenderWindow() {
                         SetWorkingFolder(Favorite::folders[i]);
                     }
                     UI::EndDisabled();
+
+                    if (true
+                        and UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)
+                        and UI::IsMouseReleased(UI::MouseButton::Right)
+                    ) {
+                        Favorite::Remove(i);
+                    }
                 }
 
                 UI::EndMenu();
             }
 
             if (UI::BeginMenu(Icons::ClockO + " Open recent", Recent::folders.Length > 0)) {
-                if (UI::MenuItem(Icons::TrashO + " Clear recent")) {
+                if (UI::MenuItem(Icons::TrashO + " Clear recent \\$AAA(tip: right-click individual entries to remove them)")) {
                     Recent::Clear();
                     Recent::Save();
                     Recent::Add(workingFolder);
@@ -66,6 +73,13 @@ void RenderWindow() {
                         SetWorkingFolder(Recent::folders[i]);
                     }
                     UI::EndDisabled();
+
+                    if (true
+                        and UI::IsItemHovered()
+                        and UI::IsMouseReleased(UI::MouseButton::Right)
+                    ) {
+                        Recent::Remove(i);
+                    }
                 }
 
                 UI::EndMenu();

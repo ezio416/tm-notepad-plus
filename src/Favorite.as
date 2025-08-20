@@ -1,5 +1,5 @@
 // c 2025-08-19
-// m 2025-08-19
+// m 2025-08-20
 
 namespace Favorite {
     const string file = IO::FromStorageFolder("favorite.json");
@@ -29,6 +29,14 @@ namespace Favorite {
         folders = {};
     }
 
+    void InitDefault() {
+        Add(Folder(IO::FromAppFolder("")));
+        Add(Folder(IO::FromDataFolder("")));
+        Add(Folder(IO::FromUserGameFolder("")));
+
+        S_InitDefaultFavorites = true;
+    }
+
     void Load() {
         if (!IO::FileExists(file)) {
             return;
@@ -45,6 +53,12 @@ namespace Favorite {
         } catch {
             error(getExceptionInfo());
             PrintActiveContextStack(true);
+        }
+    }
+
+    void Remove(const uint index) {
+        if (index < folders.Length) {
+            Remove(folders[index]);
         }
     }
 

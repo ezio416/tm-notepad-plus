@@ -1,5 +1,5 @@
 // c 2025-08-19
-// m 2025-08-19
+// m 2025-08-20
 
 namespace Recent {
     const string file = IO::FromStorageFolder("recent.json");
@@ -46,6 +46,23 @@ namespace Recent {
             error(getExceptionInfo());
             PrintActiveContextStack(true);
         }
+    }
+
+    void Remove(const uint index) {
+        if (index < folders.Length) {
+            Remove(folders[index]);
+        }
+    }
+
+    void Remove(const string&in path) {
+        warn("removing recent: " + path);
+
+        const int index = folders.Find(path);
+        if (index > -1) {
+            folders.RemoveAt(index);
+        }
+
+        Save();
     }
 
     void Save() {
