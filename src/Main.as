@@ -13,9 +13,7 @@ Folder@  workingFolder;
 
 void Main() {
     InitIcons();
-
     InitDriveLetters();
-
     Favorite::Load();
     Recent::Load();
 
