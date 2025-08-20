@@ -343,13 +343,21 @@ class File : Entry {
 
         UI::Text("Note: this text input box does not properly render format codes, i.e. \\$4FC\\\\\\$$$4FC");
 
+        vec2 size = UI::GetContentRegionAvail();
+        if (true
+            and S_MarkdownPreview
+            and extension == ".md"
+        ) {
+            size *= vec2(1.0f, 0.5f);
+        }
+
         bool changed = false;
         UI::PushFont(S_EditorMonospace ? UI::Font::DefaultMono : UI::Font::Default, S_EditorFontSize);
         unsavedContents = UI::InputTextMultiline(
             "##unsaved",
             unsavedContents,
             changed,
-            UI::GetContentRegionAvail(),
+            size,
             UI::InputTextFlags(UI::InputTextFlags::AllowTabInput | UI::InputTextFlags::CallbackAlways),
             UI::InputTextCallback(InputTextCallback)
         );
@@ -357,6 +365,16 @@ class File : Entry {
 
         if (changed) {
             dirty = true;
+        }
+
+        if (true
+            and S_MarkdownPreview
+            and extension == ".md"
+        ) {
+            if (UI::BeginChild("##child-markdown", UI::GetContentRegionAvail())) {
+                UI::Markdown(unsavedContents);
+            }
+            UI::EndChild();
         }
 
         UI::EndTabItem();

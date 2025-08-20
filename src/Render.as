@@ -84,6 +84,10 @@ void RenderWindow() {
                 UI::EndMenu();
             }
 
+            if (UI::MenuItem("Markdown preview", "", S_MarkdownPreview)) {
+                S_MarkdownPreview = !S_MarkdownPreview;
+            }
+
             UI::EndMenu();
         }
 
@@ -96,8 +100,9 @@ void RenderWindow() {
 
     if (UI::BeginChild(
         "##child-explorer",
-        vec2(0.0f, UI::GetContentRegionAvail().y), UI::ChildFlags::FrameStyle | UI::ChildFlags::ResizeX)
-    ) {
+        vec2(0.0f, UI::GetContentRegionAvail().y),
+        UI::ChildFlags::FrameStyle | UI::ChildFlags::ResizeX
+    )) {
         UI::SetNextItemWidth(UI::GetContentRegionAvail().x);
         UI::PushStyleColor(UI::Col::FrameBg, frameBg);
         bool enter = false;

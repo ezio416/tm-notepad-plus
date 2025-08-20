@@ -19,3 +19,6 @@ bool S_EditorMonospace = true;
 
 [Setting category="General" name="Editor font size"]
 int S_EditorFontSize = 16;
+
+[Setting category="General" name="Markdown preview"]
+bool S_MarkdownPreview = true;
