@@ -1,5 +1,8 @@
 // c 2025-07-27
-// m 2025-08-19
+// m 2025-08-21
+
+[Setting hidden]
+bool S_Init = false;
 
 [Setting hidden]
 bool S_InitDefaultFavorites = false;

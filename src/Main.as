@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-08-20
+// m 2025-08-21
 
 const string  pluginColor = "\\$F0A";
 const string  pluginIcon  = Icons::Pencil;
@@ -44,6 +44,8 @@ void Render() {
     ) {
         return;
     }
+
+    UI::SetNextWindowSize(500, 500, UI::Cond::FirstUseEver);
 
     if (UI::Begin(pluginTitle + "###main-" + pluginMeta.ID, S_Enabled, UI::WindowFlags::MenuBar)) {
         RenderWindow();

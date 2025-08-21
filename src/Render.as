@@ -1,5 +1,5 @@
 // c 2025-07-27
-// m 2025-08-20
+// m 2025-08-21
 
 void RenderFileTabs() {
     UI::BeginTabBar("##tabs-open", UI::TabBarFlags::Reorderable);
@@ -112,12 +112,20 @@ void RenderWindow() {
 
     UI::PushStyleColor(UI::Col::FrameBg, vec4(vec3(0.1f), 1.0f));
 
+    const vec2 avail = UI::GetContentRegionAvail();
+
+    float childWidth = 0.0f;
+    if (!S_Init) {
+        childWidth = UI::GetScale() * 300.0f;
+        S_Init = true;
+    }
+
     if (UI::BeginChild(
         "##child-explorer",
-        vec2(0.0f, UI::GetContentRegionAvail().y),
+        vec2(childWidth, avail.y),
         UI::ChildFlags::FrameStyle | UI::ChildFlags::ResizeX
     )) {
-        UI::SetNextItemWidth(UI::GetContentRegionAvail().x);
+        UI::SetNextItemWidth(avail.x);
         UI::PushStyleColor(UI::Col::FrameBg, frameBg);
         bool enter = false;
         S_WorkspaceFolder = UI::InputText("##working folder", S_WorkspaceFolder, enter, UI::InputTextFlags::EnterReturnsTrue);
