@@ -1,6 +1,3 @@
-// c 2025-08-19
-// m 2025-08-20
-
 namespace Favorite {
     const string file = IO::FromStorageFolder("favorite.json");
     string[]     folders;

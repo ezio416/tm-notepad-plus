@@ -1,6 +1,3 @@
-// c 2025-07-28
-// m 2025-08-19
-
 dictionary icons;
 
 const uint64 KiB = 1024;

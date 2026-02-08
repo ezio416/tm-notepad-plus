@@ -1,6 +1,3 @@
-// c 2025-07-27
-// m 2025-08-18
-
 class Folder : Entry {
     dictionary _entries;
     Entry@[]   entries;
