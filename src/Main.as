@@ -44,7 +44,11 @@ void Render() {
 
     UI::SetNextWindowSize(500, 500, UI::Cond::FirstUseEver);
 
-    if (UI::Begin(pluginTitle + "###main-" + pluginMeta.ID, S_Enabled, UI::WindowFlags::MenuBar)) {
+    if (UI::Begin(
+        pluginTitle + "###main-" + pluginMeta.ID,
+        S_Enabled,
+        UI::GetDefaultWindowFlags() | UI::WindowFlags::MenuBar
+    )) {
         RenderWindow();
     }
     UI::End();
